@@ -178,4 +178,4 @@ Heavy infrastructure requirements (no Kubernetes, complex deployments)
 
 Proprietary tools requiring licenses
 
-Good luck! We're excited to see your approach to building evaluation systems for educational AI.
+# Good luck! We're excited to see your approach to building evaluation systems for educational AI.
