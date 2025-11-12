@@ -9,12 +9,6 @@ The goal is to **quantitatively and qualitatively evaluate** these responses usi
 
 ---
 
-## 🕒 Assignment Timeline
-
-| Duration | Breakdown |
-|-----------|------------|
-| **Total Time:** 6 hours | **Day 1 (3 hrs):** Core pipeline + metrics + dataset<br>**Day 2 (3 hrs):** API integration + batch evaluation + final results |
-
 **Evaluation Weight:**  
 - 50% – Code Quality  
 - 50% – Evaluation Design  
@@ -37,15 +31,111 @@ This project builds a **systematic evaluation pipeline** that:
 
 ### 🧩 Core Components
 
-| Component | Description |
-|------------|-------------|
-| **Mock Tutor (Day 1)** | Generates responses from any LLM of your choice. |
-| **Evaluator Module** | Applies metrics and LLM-judge scoring. |
-| **Results Storage** | Saves detailed JSON/CSV logs of scores and reasoning. |
-| **Real Endpoint Client (Day 2)** | Integrates with `/tutor/query` API for actual tutor evaluations. |
-| **Batch Evaluator** | Runs evaluation on all test cases, aggregates results. |
+# 📘 LLM Evaluation Pipeline for AI Tutor System
+
+## 🧠 Overview
+
+This project builds a **modular evaluation pipeline** to assess the quality of responses from an **AI Tutor Orchestrator**.  
+The system measures **pedagogical effectiveness, accuracy, and relevance** of AI tutor responses across **different grade levels and subjects**, ensuring the tutor’s outputs meet educational standards.
 
 ---
+
+## 🎯 Objectives
+
+- Evaluate the **pedagogical effectiveness** of tutor responses  
+- Ensure **grade-level appropriateness** and **subject-specific accuracy**  
+- Design a **scalable and configurable** evaluation framework  
+- Produce **actionable metrics** for AI tutor improvement  
+
+---
+
+## 🧩 Core Requirements (Must-Have)
+
+The evaluation pipeline must implement **at least four key metrics** focused on educational response quality.  
+Each metric is scored on a **1–5 scale** and evaluated using an **LLM-as-a-judge** approach.
+
+#### **Pedagogical Effectiveness Metrics**
+
+| Metric | Description | Evaluation Question |
+|:--------|:-------------|:--------------------|
+| **Clarity** | Measures if the explanation is understandable for the target grade level | “Is the explanation easy to understand for this grade?” |
+| **Completeness** | Evaluates whether the response adequately addresses the student's question | “Does the answer fully cover the question’s intent?” |
+| **Accuracy** | Assesses factual correctness of the content | “Is the information scientifically or historically accurate?” |
+| **Appropriateness** | Checks if the tone, vocabulary, and complexity suit the student’s grade level | “Is the language suitable for the student’s learning level?” |
+
+#### **Implementation Guidance**
+- Use **LLM-as-judge** evaluation with open-source models such as **Llama** or **Mistral** (via Ollama or HuggingFace).  
+- Each metric should use a **rubric-based evaluation** with scores from **1 to 5**:
+  - 1 → Poor / Incorrect  
+  - 3 → Acceptable / Partial  
+  - 5 → Excellent / Grade-appropriate and correct  
+- Metrics must be **grade-level and subject-aware**, meaning evaluation criteria differ for elementary vs. college-level responses.
+
+---
+
+### **2. Test Dataset Structure**
+
+A **test dataset** of at least **15–20 diverse test cases** must be created to evaluate tutor responses across different grades and subjects.
+
+#### **Dataset Coverage Requirements**
+- **Grade Levels:**  
+  - Elementary (K–5)  
+  - Middle School (6–8)  
+  - High School (9–12)  
+  - College  
+
+- **Subjects:**  
+  - Math  
+  - Science  
+  - English / Language Arts  
+  - History / Social Studies  
+
+- **Query Types:**  
+  - **Concept Explanation:** e.g., “Explain photosynthesis” (Grade 7, Science)  
+  - **Problem Solving:** e.g., “How do I solve 2x + 5 = 15?” (Grade 8, Math)  
+  - **Analysis:** e.g., “What caused the Civil War?” (Grade 11, History)  
+
+#### **Dataset Format (Recommended JSON Structure)**
+```json
+{
+  "test_cases": [
+    {
+      "id": "test_001",
+      "student_query": "Explain what mitosis is",
+      "grade_level": "high_school",
+      "subject": "biology",
+      "expected_concepts": ["cell division", "chromosomes", "phases"],
+      "ground_truth_answer": "optional reference answer"
+    }
+  ]
+}
+
+
+---
+
+### Bonus Features (Optional)
+These demonstrate advanced thinking but are not required:
+
+Multimodal evaluation: Assess appropriateness of suggested image/video resources
+
+Query type classification: Different metrics for explanation vs. problem-solving vs. analysis queries
+
+Comparative analysis: Compare multiple models or prompt variations
+
+Visualization dashboard: Simple plots showing metric distributions by grade/subject
+
+Failure case detection: Flag responses that score below threshold
+
+## Code Standard Checklist
+
+| Requirement        | Description                                                         |
+| ------------------ | ------------------------------------------------------------------- |
+| **Modular Design** | Keep data loading, evaluation, and reporting in separate modules    |
+| **Configurable**   | Make rubrics, metrics, and models easy to modify or extend          |
+| **Error Handling** | Handle API errors, timeouts, and invalid tutor responses gracefully |
+| **Documentation**  | Provide clear setup, usage, and design explanations in your README  |
+| **Type Hints**     | Use Python type annotations for clarity and IDE support             |
+
 
 ## 📊 Evaluation Metrics
 
@@ -72,28 +162,8 @@ Each metric is rated on a **1–5 scale**, with thresholds for pass/fail categor
 
 ---
 
-## 🧑‍🏫 Test Dataset Design
-
-### **Dataset Composition**
-
-The dataset (create your mock data) includes **15–20 diverse examples** spanning:
-- Grade Levels: Elementary → College  
-- Subjects: Math, Science, English, History  
-- Query Types: Explanations, Problem-solving, Analysis
-
-### **Example Entry**
-```json
-{
-  "id": "test_003",
-  "student_query": "Explain what mitosis is",
-  "grade_level": "high_school",
-  "subject": "biology",
-  "expected_concepts": ["cell division", "chromosomes", "phases"],
-  "ground_truth_answer": "Mitosis is the process by which a cell divides to produce two identical daughter cells, ensuring each has the same number of chromosomes."
-}
-
 ### **Success Indicators**
-A strong submission will:
+A strong submission will contain **proper documentation, working code and demo examples** which will:
 
 ✅ Run successfully with minimal setup
 
@@ -108,3 +178,25 @@ A strong submission will:
 ✅ Document thoughtful trade-offs and design decisions
 
 ✅ Be easily extensible to real endpoints
+
+
+### Technical Constraints
+**Encouraged**:
+
+Open-source LLMs (Ollama, HuggingFace Transformers, llama.cpp)
+
+Free APIs with generous limits (if any)
+
+Python (recommended) or TypeScript/JavaScript
+
+Lightweight frameworks (FastAPI, Flask for endpoint mocking)
+
+**Avoid (for candidate convenience)**:
+
+Paid API services (OpenAI, Anthropic) unless free tier sufficient
+
+Heavy infrastructure requirements (no Kubernetes, complex deployments)
+
+Proprietary tools requiring licenses
+
+Good luck! We're excited to see your approach to building evaluation systems for educational AI.
