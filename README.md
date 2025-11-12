@@ -29,7 +29,7 @@ This project builds a **systematic evaluation pipeline** that:
 ---
 ## 🧩 Core Requirements (Must-Have)
 
-The evaluation pipeline must implement **at least four key metrics** focused on educational response quality.  
+The evaluation pipeline must implement **at least five key metrics** (10 expected) focused on educational response quality.  
 Each metric is scored on a **1–5 scale** and evaluated using an **LLM-as-a-judge** approach.
 
 #### **Pedagogical Effectiveness Metrics**
@@ -40,6 +40,7 @@ Each metric is scored on a **1–5 scale** and evaluated using an **LLM-as-a-jud
 | **Completeness** | Evaluates whether the response adequately addresses the student's question | “Does the answer fully cover the question’s intent?” |
 | **Accuracy** | Assesses factual correctness of the content | “Is the information scientifically or historically accurate?” |
 | **Appropriateness** | Checks if the tone, vocabulary, and complexity suit the student’s grade level | “Is the language suitable for the student’s learning level?” |
+| **Long-term Memory** | Is the model remembering long conversations? | “Can you repeat the answer to my first question?” |
 
 #### **Implementation Guidance**
 - Use **LLM-as-judge** evaluation with open-source models such as **Llama** or **Mistral** (via Ollama or HuggingFace).  
@@ -117,7 +118,7 @@ Failure case detection: Flag responses that score below threshold
 
 ## 📊 Evaluation Metrics
 
-The pipeline uses **LLM-as-a-Judge** to evaluate tutor responses along four key pedagogical dimensions.  
+The pipeline uses **LLM-as-a-Judge** to evaluate tutor responses along key pedagogical dimensions.  
 Each metric is rated on a **1–5 scale**, with thresholds for pass/fail categorization.
 
 | Metric | Description | Example Prompt (to LLM-Judge) |
