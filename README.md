@@ -27,28 +27,6 @@ This project builds a **systematic evaluation pipeline** that:
 5. Is designed for **production scalability** with real API endpoints
 
 ---
-
-
-### 🧩 Core Components
-
-# 📘 LLM Evaluation Pipeline for AI Tutor System
-
-## 🧠 Overview
-
-This project builds a **modular evaluation pipeline** to assess the quality of responses from an **AI Tutor Orchestrator**.  
-The system measures **pedagogical effectiveness, accuracy, and relevance** of AI tutor responses across **different grade levels and subjects**, ensuring the tutor’s outputs meet educational standards.
-
----
-
-## 🎯 Objectives
-
-- Evaluate the **pedagogical effectiveness** of tutor responses  
-- Ensure **grade-level appropriateness** and **subject-specific accuracy**  
-- Design a **scalable and configurable** evaluation framework  
-- Produce **actionable metrics** for AI tutor improvement  
-
----
-
 ## 🧩 Core Requirements (Must-Have)
 
 The evaluation pipeline must implement **at least four key metrics** focused on educational response quality.  
@@ -73,7 +51,7 @@ Each metric is scored on a **1–5 scale** and evaluated using an **LLM-as-a-jud
 
 ---
 
-### **2. Test Dataset Structure**
+### **Test Dataset Structure**
 
 A **test dataset** of at least **15–20 diverse test cases** must be created to evaluate tutor responses across different grades and subjects.
 
