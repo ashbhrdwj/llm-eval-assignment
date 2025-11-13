@@ -11,7 +11,7 @@ from ..db.models import Dataset as DBDataset
 router = APIRouter()
 
 SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "..", "schemas", "testcase_schema.json")
-DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "data"))
 os.makedirs(DATA_DIR, exist_ok=True)
 
 
@@ -56,7 +56,8 @@ async def upload_dataset(tenant_id: str, file: UploadFile = File(...), x_api_key
     try:
         init_db()
         db = SessionLocal()
-        ds = DBDataset(tenant_id=tenant_id, dataset_id=dataset_id, path=out_path, version=version, num_cases=len(payload.get("test_cases", [])), metadata={})
+        # store minimal dataset metadata in DB under metadata_json (avoid reserved name 'metadata')
+        ds = DBDataset(tenant_id=tenant_id, dataset_id=dataset_id, path=out_path, version=version, num_cases=len(payload.get("test_cases", [])), metadata_json={})
         db.add(ds)
         db.commit()
         db.refresh(ds)

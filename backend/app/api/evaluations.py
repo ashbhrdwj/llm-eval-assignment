@@ -7,6 +7,8 @@ from ..orchestrator.orchestrator import Orchestrator
 from .models import EvaluationCreateRequest, JobCreateResponse
 from ..db.session import SessionLocal, init_db
 from ..db.models import Job as DBJob, CaseResult
+from ..metrics.base import value_to_norm
+from ..metrics.registry import metric_categories
 
 router = APIRouter()
 orch = Orchestrator()
@@ -26,7 +28,7 @@ async def create_evaluation(tenant_id: str, payload: EvaluationCreateRequest = B
     mode = payload.mode or "async"
 
     # find dataset path
-    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "data"))
     dataset_path = None
     for fn in os.listdir(data_dir):
         if dataset_id and dataset_id in fn:
@@ -181,6 +183,96 @@ async def list_case_results(tenant_id: str, job_id: str, limit: int = 50, offset
                 "evaluated_at": r.evaluated_at.isoformat() if r.evaluated_at else None,
             })
         return {"job_id": job_id, "total": total, "limit": limit, "offset": offset, "cases": out}
+    finally:
+        db.close()
+
+
+@router.get("/api/v1/tenants/{tenant_id}/evaluations/comparison")
+async def compare_jobs(tenant_id: str, job_ids: str, x_api_key: Optional[str] = Header(None)):
+    """Compare multiple jobs for a tenant. Query param job_ids is comma-separated job ids."""
+    from os import getenv
+    dev_key = getenv("DEV_API_KEY")
+    if dev_key and x_api_key != dev_key:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+    ids = [j.strip() for j in job_ids.split(",") if j.strip()]
+    if not ids:
+        raise HTTPException(status_code=400, detail="job_ids required")
+
+    init_db()
+    db = SessionLocal()
+    try:
+        results = {}
+        for jid in ids:
+            job = db.query(DBJob).filter(DBJob.job_id == jid, DBJob.tenant_id == tenant_id).first()
+            if not job:
+                results[jid] = {"error": "job not found"}
+                continue
+
+            # base summary
+            summary = job.meta.get("summary") if job.meta else None
+
+            # compute per-metric averages from CaseResult rows
+            q = db.query(CaseResult).filter(CaseResult.job_id == jid, CaseResult.tenant_id == tenant_id)
+            rows = q.all()
+            per_metric = {}
+            counts = {}
+            for r in rows:
+                s = r.scores or {}
+                for mid, mv in s.items():
+                    try:
+                        val = int(mv.get("value", 1))
+                        norm = value_to_norm(val)
+                    except Exception:
+                        norm = 0.0
+                    per_metric[mid] = per_metric.get(mid, 0.0) + norm
+                    counts[mid] = counts.get(mid, 0) + 1
+
+            avg_metrics = {mid: (per_metric[mid] / counts[mid]) if counts[mid] else None for mid in per_metric}
+            results[jid] = {"job_id": jid, "summary": summary, "per_metric_avg": avg_metrics}
+        return {"tenant_id": tenant_id, "comparison": results}
+    finally:
+        db.close()
+
+
+@router.get("/api/v1/tenants/{tenant_id}/evaluations/{job_id}/metrics/distribution")
+async def metric_distribution(tenant_id: str, job_id: str, metric: str, group_by: Optional[str] = None, x_api_key: Optional[str] = Header(None)):
+    """Return simple histogram buckets for a metric across cases. group_by can be 'grade' or 'subject' if case metadata has it."""
+    from os import getenv
+    dev_key = getenv("DEV_API_KEY")
+    if dev_key and x_api_key != dev_key:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+    init_db()
+    db = SessionLocal()
+    try:
+        q = db.query(CaseResult).filter(CaseResult.job_id == job_id, CaseResult.tenant_id == tenant_id)
+        rows = q.all()
+        # bucket ranges: 0-0.2,0.2-0.4,0.4-0.6,0.6-0.8,0.8-1.0
+        buckets = [0, 0, 0, 0, 0]
+        groups = {}
+        for r in rows:
+            s = r.scores or {}
+            mv = s.get(metric)
+            if not mv:
+                continue
+            try:
+                norm = value_to_norm(int(mv.get("value", 1)))
+            except Exception:
+                norm = 0.0
+            idx = min(4, int(norm * 5))
+            if idx == 5:
+                idx = 4
+            buckets[idx] += 1
+
+            if group_by:
+                # case metadata not stored in case_results; we try to read raw case subject/grade if present
+                raw = r.raw or {}
+                key = raw.get(group_by) or raw.get("metadata", {}).get(group_by) or "unknown"
+                gs = groups.setdefault(key, [0, 0, 0, 0, 0])
+                gs[idx] += 1
+
+        return {"job_id": job_id, "metric": metric, "buckets": buckets, "groups": groups}
     finally:
         db.close()
 

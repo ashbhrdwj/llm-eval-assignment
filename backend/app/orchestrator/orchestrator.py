@@ -8,7 +8,7 @@ from datetime import datetime
 from ..db.session import SessionLocal, init_db
 from ..db.models import Job as DBJob
 
-DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "data"))
 JOBS_DIR = os.path.join(DATA_DIR, "jobs")
 os.makedirs(JOBS_DIR, exist_ok=True)
 

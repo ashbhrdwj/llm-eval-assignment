@@ -9,11 +9,13 @@ from ..engines.base import JudgeResult
 from ..engines.mock_adapter import MockEngine
 from ..engines.ollama_adapter import OllamaAdapter
 from ..engines.hf_adapter import HuggingFaceAdapter
-from ..metrics import registry as metrics_registry
+from ..metrics.registry import registry as metrics_registry
+from ..metrics import query_type as query_type_module
+from ..metrics.registry import metric_categories
 from ..db.session import SessionLocal, init_db
 from ..db.models import Job as DBJob, CaseResult
 
-DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "data"))
 RESULTS_DIR = os.path.join(DATA_DIR, "results")
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
@@ -99,14 +101,31 @@ def process_case(task_payload: Dict[str, Any], job_id: str = None):
                 out = {"value": 1, "confidence": 0.0, "notes": f"metric error: {e}"}
             scores[metric_id] = out
 
-        # aggregate simple normalized score
+        # Query-type aware aggregation: classify the case/query and weight metrics
+        qtext = case.get("query") or case.get("prompt") or case.get("student_query") or ""
+        qtype = query_type_module.classify_query_text(qtext)
+
         from ..metrics.base import value_to_norm
         norms = []
-        for v in scores.values():
+        for mid, v in scores.items():
             val = v.get("value", 1)
             conf = v.get("confidence", 1.0)
-            norm = value_to_norm(int(val)) * (conf if conf < 0.4 else 1.0)
+            base_norm = value_to_norm(int(val))
+            # determine weight: metrics matching the query type get higher weight
+            cat = metric_categories.get(mid)
+            if cat == qtype:
+                weight = 1.4
+            elif cat == "multimodal" and qtype == "analysis":
+                # multimodal can be relevant for analysis
+                weight = 1.1
+            else:
+                weight = 1.0
+
+            # apply confidence scaling only when low
+            conf_scale = conf if conf < 0.4 else 1.0
+            norm = base_norm * weight * conf_scale
             norms.append(norm)
+
         aggregated = sum(norms) / max(1, len(norms))
 
         case_result = {
@@ -118,6 +137,8 @@ def process_case(task_payload: Dict[str, Any], job_id: str = None):
             "status": "evaluated",
             "evaluated_at": datetime.utcnow().isoformat() + "Z",
             "trace_id": str(uuid.uuid4()),
+            "query_type": qtype,
+            "failed": True if aggregated < 0.4 else False,
             "raw": judge_output
         }
 

@@ -3,6 +3,8 @@ import os
 import json
 import subprocess
 from pathlib import Path
+import requests
+import pandas as pd
 
 st.set_page_config(page_title="LLM Eval Demo", layout="wide")
 
@@ -92,6 +94,60 @@ if sel:
     for r in lines:
         with st.expander(f"{r.get('case_id')} — score {r.get('aggregated_score'):.2f}"):
             st.json(r)
+
+
+st.markdown("## Dashboard")
+st.write("Visualize metric distributions and compare jobs via the backend API.")
+api_url = st.text_input("Backend URL for dashboard", "http://127.0.0.1:8000")
+tenant = st.text_input("Tenant ID", "local")
+
+with st.expander("Metric distribution"):
+    metric = st.selectbox("Metric", ["clarity", "completeness", "accuracy", "appropriateness", "multimodal_appropriateness"], index=0)
+    job_for_dist = st.text_input("Job ID for distribution", "local-sync")
+    group_by = st.selectbox("Group by (optional)", ["", "grade", "subject"], index=0)
+    if st.button("Fetch distribution"):
+        try:
+            r = requests.get(f"{api_url}/api/v1/tenants/{tenant}/evaluations/{job_for_dist}/metrics/distribution?metric={metric}" + (f"&group_by={group_by}" if group_by else ""))
+            r.raise_for_status()
+            data = r.json()
+            buckets = data.get("buckets", [])
+            labels = ["0-0.2", "0.2-0.4", "0.4-0.6", "0.6-0.8", "0.8-1.0"]
+            df = pd.DataFrame({"count": buckets}, index=labels)
+            st.bar_chart(df)
+            groups = data.get("groups", {})
+            if groups:
+                st.write("Groups:")
+                for k, v in groups.items():
+                    st.write(k)
+                    st.bar_chart(pd.DataFrame({"count": v}, index=labels))
+        except Exception as e:
+            st.error(f"Failed to fetch distribution: {e}")
+
+with st.expander("Compare jobs"):
+    job_ids = st.text_input("Comma-separated job ids to compare", "local-sync")
+    if st.button("Compare"):
+        try:
+            r = requests.get(f"{api_url}/api/v1/tenants/{tenant}/evaluations/comparison?job_ids={job_ids}")
+            r.raise_for_status()
+            js = r.json()
+            comp = js.get("comparison", {})
+            # build dataframe of per-metric averages
+            rows = {}
+            for jid, info in comp.items():
+                per = info.get("per_metric_avg") or {}
+                for m, v in per.items():
+                    rows.setdefault(m, {})[jid] = v
+            if rows:
+                df = pd.DataFrame(rows).T
+                st.dataframe(df)
+                # allow selecting a metric to chart
+                sel_metric = st.selectbox("Metric to plot", df.index.tolist())
+                if sel_metric:
+                    plot_df = df.loc[[sel_metric]].T
+                    plot_df.columns = [sel_metric]
+                    st.bar_chart(plot_df)
+        except Exception as e:
+            st.error(f"Comparison failed: {e}")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("Data files:")

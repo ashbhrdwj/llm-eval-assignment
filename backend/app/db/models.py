@@ -12,7 +12,9 @@ class Dataset(Base):
     path = Column(String)
     version = Column(Integer)
     num_cases = Column(Integer)
-    metadata = Column(SAJSON)
+    # 'metadata' is a reserved attribute name on Declarative base (Base.metadata).
+    # Use a different column name to avoid SQLAlchemy InvalidRequestError.
+    metadata_json = Column(SAJSON)
     created_at = Column(DateTime, server_default=func.now())
 
 class Job(Base):
