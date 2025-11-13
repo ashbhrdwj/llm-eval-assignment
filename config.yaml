@@ -1,0 +1,74 @@
+service:
+  env: local
+  api_host: 0.0.0.0
+  api_port: 8000
+  log_level: INFO
+
+database:
+  url: postgresql://postgres:postgres@postgres:5432/llmeval
+  pool_size: 10
+  max_overflow: 20
+
+redis:
+  url: redis://redis:6379/0
+  socket_connect_timeout: 5
+  socket_keepalive: true
+
+object_store:
+  endpoint: http://minio:9000
+  access_key: minioadmin
+  secret_key: minioadmin
+  bucket: llm-eval
+  use_ssl: false
+
+engines:
+  default_timeout: 30
+  fallback_strategy: "sequential"
+  default_model: "mock"
+  available:
+    - name: "mock"
+      type: "mock"
+      config: {}
+    - name: "ollama-llama2"
+      type: "ollama"
+      config:
+        base_url: "http://ollama:11434"
+        model: "llama2"
+    - name: "ollama-mistral"
+      type: "ollama"
+      config:
+        base_url: "http://ollama:11434"
+        model: "mistral"
+
+metrics:
+  deterministic_seed: 42
+  weighting:
+    code_bucket: 0.5
+    eval_design_bucket: 0.5
+  code_metrics:
+    - id: "code_quality"
+      weight: 0.5
+  evaluation_design_metrics:
+    - id: "clarity"
+      weight: 0.166
+    - id: "completeness"
+      weight: 0.166
+    - id: "accuracy"
+      weight: 0.166
+    - id: "appropriateness"
+      weight: 0.167
+    - id: "long_term_memory"
+      weight: 0.167
+    - id: "pedagogy_alignment"
+      weight: 0.168
+
+evaluations:
+  default_timeout: 120
+  max_retries: 2
+  case_fail_threshold: 0.4
+  job_fail_threshold: 0.5
+  percent_failing_cases_threshold: 0.2
+
+auth:
+  dev_api_key: "dev-test-key-12345"
+  enable_dev_auth: true
