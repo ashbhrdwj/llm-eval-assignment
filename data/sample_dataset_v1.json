@@ -1,0 +1,124 @@
+{
+  "test_cases": [
+    {
+      "id": "test_001",
+      "student_query": "What is photosynthesis?",
+      "grade_level": "middle_school",
+      "subject": "science",
+      "expected_concepts": ["sunlight","chlorophyll","glucose","oxygen"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_002",
+      "student_query": "Solve 2x + 5 = 15. Show steps.",
+      "grade_level": "middle_school",
+      "subject": "math",
+      "expected_concepts": ["isolate variable","subtract 5","divide by 2"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_003",
+      "student_query": "Explain mitosis briefly.",
+      "grade_level": "high_school",
+      "subject": "science",
+      "expected_concepts": ["prophase","metaphase","anaphase","telophase","cytokinesis"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_004",
+      "student_query": "What caused the American Civil War?",
+      "grade_level": "high_school",
+      "subject": "history",
+      "expected_concepts": ["slavery","states' rights","economic differences"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_005",
+      "student_query": "Summarize the plot of 'Romeo and Juliet' in 3 sentences.",
+      "grade_level": "college",
+      "subject": "english",
+      "expected_concepts": ["feuding families","young love","tragedy"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_006",
+      "student_query": "Explain why water expands when it freezes.",
+      "grade_level": "high_school",
+      "subject": "science",
+      "expected_concepts": ["hydrogen bonds","lattice structure","lower density"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_007",
+      "student_query": "Find derivative of f(x)=3x^2+2x.",
+      "grade_level": "high_school",
+      "subject": "math",
+      "expected_concepts": ["power rule","2*3x","result 6x+2"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_008",
+      "student_query": "Give a step-by-step plan to debug a Python function that raises a TypeError.",
+      "grade_level": "college",
+      "subject": "math",
+      "expected_concepts": ["inspect stack trace","check types","add asserts","unit tests"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_009",
+      "student_query": "Translate 'Good morning' to Spanish and provide a polite follow-up question.",
+      "grade_level": "elementary",
+      "subject": "english",
+      "expected_concepts": ["Buenos días","¿Cómo estás?"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_010",
+      "student_query": "Explain the concept of supply and demand.",
+      "grade_level": "college",
+      "subject": "history",
+      "expected_concepts": ["price signals","equilibrium","market forces"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_011",
+      "student_query": "What is the main idea of a paragraph that starts with 'In 1914...'?",
+      "grade_level": "high_school",
+      "subject": "history",
+      "expected_concepts": ["WWI context","timeline","causes"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_012",
+      "student_query": "Explain photosynthesis to a 5th grader using a short metaphor.",
+      "grade_level": "elementary",
+      "subject": "science",
+      "expected_concepts": ["sun energy","food for plant","simple metaphor"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_013",
+      "student_query": "A student asks: 'How do I factor x^2 - 5x + 6?' Provide steps and checks.",
+      "grade_level": "middle_school",
+      "subject": "math",
+      "expected_concepts": ["find roots","(x-2)(x-3)","check by expansion"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_014",
+      "student_query": "Assess this short code: def add(a,b): return a+b — what tests would you write?",
+      "grade_level": "college",
+      "subject": "math",
+      "expected_concepts": ["unit tests","edge cases","type checks","negative numbers"],
+      "ground_truth_answer": null
+    },
+    {
+      "id": "test_015",
+      "student_query": "Summarize the greenhouse effect in three simple points for grade 8.",
+      "grade_level": "middle_school",
+      "subject": "science",
+      "expected_concepts": ["energy trapping","greenhouse gases","temperature rise"],
+      "ground_truth_answer": null
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TestCase",
+  "type": "object",
+  "required": ["id", "student_query", "grade_level", "subject"],
+  "properties": {
+    "id": {"type": "string"},
+    "student_query": {"type": "string"},
+    "grade_level": {"type": "string", "enum": ["elementary", "middle_school", "high_school", "college"]},
+    "subject": {"type": "string", "enum": ["math", "science", "english", "history"]},
+    "expected_concepts": {"type": "array", "items": {"type": "string"}},
+    "ground_truth_answer": {"type": ["string", "null"]},
+    "metadata": {"type": "object"}
+  }
+}
